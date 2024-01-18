@@ -1,0 +1,16 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ParryCollider : MonoBehaviour
+{
+    public bool parryScusses = false;
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("ParryBullet"))
+        {
+            gameObject.SetActive(false);
+            parryScusses = true;
+        }
+    }
+}
