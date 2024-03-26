@@ -37,12 +37,6 @@ public class DiscoverCompass : MonoBehaviour
     void Update()
     {
 
-        //視界リスト内が空でネズミを見失ったら最後に見た地点を保持
-        //if (discoverObjectList.DiscoverMouses.Count == 0 && visionSensor.MouseLoss)
-        //{
-        //    discoverLostMousePos = discoverObjectList.DiscoverLostPos;
-        //}
-
         //リストの中で一番近いネズミを見つける
         if (discoverObjectList.DiscoverMouses.Count > 0)
         {

@@ -198,17 +198,6 @@ public class DiscoverObjectList : MonoBehaviour
 
     }
 
-    //public bool DecoyIsFirstTime(Transform _trans)
-    //{
-    //    //すでに見つけたことのあるDecoyは反応しない
-    //    if (discoverDecoys.Contains(_trans))
-    //    {
-    //        return false;
-    //    }
-
-    //    return true;
-    //}
-
     /// <summary>
     /// デコイリストに入れる
     /// </summary>

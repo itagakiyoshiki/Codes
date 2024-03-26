@@ -33,6 +33,12 @@ public class CatMaster : MonoBehaviour
 
     const float returnFirestDistance = 1.0f;
 
+    const float searchEndDistance = 1.0f;
+
+    const float searchEndDotAngleMaxLimit = 0.95f;
+
+    const float searchEndDotAngleLowerLimit = 0.1f;
+
     float searchTime;
 
     float visionLostRange;
@@ -107,7 +113,6 @@ public class CatMaster : MonoBehaviour
         veryNearEffectRange = catSetting.VeryNearEffectRange;
         nearEffectRange = catSetting.NearEffectRange;
         searchTime = catSetting.SearchTime;
-        //noticeDecoyWaitTime = catSetting.NoticeDecoyWaitTime;
         effectOn = catSetting.EffectOn;
 
         state = State.Nomal;
@@ -150,7 +155,6 @@ public class CatMaster : MonoBehaviour
         playerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
 
         //画面もやもやエフェクトをリセット
-
         Frameanimation.instance.ResetEffect();
 
     }
@@ -242,7 +246,6 @@ public class CatMaster : MonoBehaviour
                 SetThinkingIndexisWanderingAbout();
                 catThinkingType = Thinking.WanderingAbout;
                 catAnimation.SetSinkingIndex((int)CatMaster.Thinking.WanderingAbout);
-                //catMove.ResetFlags();
                 catAnimation.AmbushEnding();
             }
 
@@ -398,23 +401,6 @@ public class CatMaster : MonoBehaviour
 
         ScreenEffectSet();
 
-        //デコイを見つけていた場合待機する
-        //if (noticeIsDecoy)
-        //{
-        //    noticeDecoyWaitCurrentTime += Time.deltaTime;
-        //    if (noticeDecoyWaitCurrentTime >= noticeDecoyWaitTime)
-        //    {
-        //        noticeIsDecoy = false;
-        //        discoverCompass.AvoidBugIsDecoyPos();
-        //        noticeDecoyWaitCurrentTime = 0.0f;
-        //        catMove.GoNav();
-        //        catAnimation.DecoyNoticeOFF();
-        //    }
-        //    catMove.StopNav();
-
-        //    return;
-        //}
-
         //帰還行動中の処理
         if (returnMoveOn)
         {
@@ -450,8 +436,8 @@ public class CatMaster : MonoBehaviour
 
         float _dot = Vector3.Dot(_catForPositon, _catForward);//内積(1 ～ -1)
         float _dis = Vector3.Distance(transform.position, searchPlaningPosition);
-        if (_dis <= 1.0f && _dot >= 0.95f
-                || _dis <= 1.0f && _dot <= 0.1f)
+        if (_dis <= searchEndDistance && _dot >= searchEndDotAngleMaxLimit
+                || _dis <= searchEndDistance && _dot <= searchEndDotAngleLowerLimit)
         {
             //追跡歩きを止めさせる
             catAnimation.OnEndSearch();
@@ -476,17 +462,6 @@ public class CatMaster : MonoBehaviour
 
     void Hunt()
     {
-        //パンチが当たってネズミを倒したらNomalへ移行
-        //当たり判定をCatPunchにもたせる
-        //if (catPunch.PunchHit || catNearAttack.AttackHit)
-        //{
-        //    catAnimation.EndHunting();
-        //    catAnimation.AnimationStateSetSearch();
-        //    returnMoveOn = true;
-        //    StateSet(State.Search);
-        //    return;
-        //}
-
         //huntの状態でMousLossになり最後に見た位置に着いたらLookをして帰還する
         if (visionSensor.MouseLoss)
         {
@@ -503,17 +478,6 @@ public class CatMaster : MonoBehaviour
             StateSet(State.Search);
             return;
 
-            //float _distance =
-            // (transform.position -
-            //    discoverCompass.DiscoverMousePos).sqrMagnitude;
-
-            ////最後に見た地点に着き視界にネズミがいないとSearchへ移行
-            ////念のため、安全装置としてTimeを加えておく視界も狭めておく
-            //huntCurrentTime += Time.deltaTime;
-
-            //if (_distance <= visionLostRange || huntCurrentTime >= huntTime)
-            //{
-            //}
         }
 
 
@@ -535,31 +499,6 @@ public class CatMaster : MonoBehaviour
                 catAnimation.OnPunch();
             }
 
-            //追いかけたのがデコイだと分かった場合
-            //パンチを行う
-            //if (visionSensor.NoticeIsDecoy)
-            //{
-            //    punchCurrentTime = 0.0f;
-            //    catAnimation.OnPunch();
-            //    //catAnimation.DecoyNoticeON();
-            //    //catAnimation.EndHunting();
-            //    //catAnimation.AnimationStateSetSearch();
-            //    //returnMoveOn = true;
-            //    //noticeIsDecoy = true;
-            //    //if (effectOn)
-            //    //{
-            //    //    Frameanimation.instance.ResetEffect();
-            //    //}
-            //    //discoverCompass.ResetDecoyDiscover();
-            //    //StateSet(State.Search);
-            //    //return;
-            //}
-
-            //if (visionSensor.InNearVisionOnDecoy)
-            //{
-            //    punchCurrentTime = 0.0f;
-            //    catAnimation.OnNearAttack();
-            //}
         }
         else
         {
