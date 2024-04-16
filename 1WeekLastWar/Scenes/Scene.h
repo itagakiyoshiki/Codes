@@ -6,10 +6,8 @@
 
 enum class NextScene : int {
 	Continue = 0,
-	TitleScene,
 	MainScene,
-	ResultScene,
-	StartScene = TitleScene
+	StartScene = MainScene
 };
 
 class Scene {

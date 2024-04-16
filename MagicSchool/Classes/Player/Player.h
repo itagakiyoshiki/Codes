@@ -183,6 +183,9 @@ private:
 	//獲得したアイテムの総数
 	int m_havingItemCount;
 
+	//アイテム獲得で速度アップする閾値
+	static constexpr float s_upSpeed = 1.1f;
+
 	//発射間隔制御
 	//火
 	static constexpr float s_fireCoolTime = 1.2f;

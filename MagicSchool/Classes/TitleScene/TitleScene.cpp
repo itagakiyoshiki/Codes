@@ -27,11 +27,33 @@ void TitleScene::LoadAssets()
 {
 	//メモリの使い方を指定する
 	D3D12_HEAP_PROPERTIES _heapprop{};
-	_heapprop.Type = D3D12_HEAP_TYPE_UPLOAD;
+	_heapprop.Type = D3D12_HEAP_TYPE_UPLOAD;// GPUからアクセスできる設定にしてる
+	// ID3D12Resource::Map()メソッドでヒープの中身をCPUから変えられる
+
 	_heapprop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	_heapprop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 
 	//バッファーの性質を定義
+#pragma region D3D12_RESOURCE_DESC構造体メモ
+	/*
+	D3D12_RESOURCE_DESC
+	{
+		D3D12_RESOURCE_DIMENSION Dimension; // バッファーに使うのでBUFFERを指定
+		UINT64 Alignment; // 0でよい
+		UINT64 Width; // 幅で全部まかなうのでsizeof(全頂点)とする
+					//テクスチャの場合は画像の幅を表す
+		UINT Height; // 幅で表現しているので1とする
+					//テクスチャの場合は画像の高さを表す
+		UINT16 DepthOrArraySize; // 1でよい
+		UINT12 MipLevels; // 1でよい
+		DXGI_FORMAT Format; // 画像ではないのでUNKNOWNでよい
+		DXGI_SAMPLE_DESC SampleDesc; // SampleDesc.Count = 1 とする
+		D3D12_TEXTURE_LAYOUT Layout; // D3D12_TEXTURE_LAYOUT_ROW_MAJOR とする
+		D3D12_RESOURCE_FLAGS Flags; // NONE でよい
+	}
+	*/
+#pragma endregion
+
 	D3D12_RESOURCE_DESC _resdesc{};
 	_resdesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	_resdesc.Width = sizeof(s_screenTriangleVertices);
@@ -45,6 +67,20 @@ void TitleScene::LoadAssets()
 
 	HRESULT _result;
 	//GPUにメモリを作る
+#pragma region CreateCommittedResourceメモ
+	/*
+	HRESULT CreateCommittedResource(
+		const D3D12_HEAP_PROPERTIES *pHeapProperties, // ヒープ設定構造体のアドレス
+		D3D12_HEAP_FLAGS HeapFlags,	// 特に指定がないためD3D12_HEAP_FLAG_NONEでよい
+		const D3D12_RESOURCE_DESC *pDesc, // リソース設定構造体のアドレス
+		D3D12_RESOURCE_STATES InitialResourceState, // GPU側からは読み取り専用なので
+													// D3D12_RESOURCE_STATE_GENERIC_READ
+		const D3D12_CLEAR_VALUE *pOptimizedClearValue, // 使わないのでnullptrでよい
+		REFIID riidResource,
+		void **ppvResource
+	);
+	*/
+#pragma endregion
 	_result = DXTK->Device->CreateCommittedResource(
 		&_heapprop,
 		D3D12_HEAP_FLAG_NONE,
@@ -52,13 +88,35 @@ void TitleScene::LoadAssets()
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(m_vertexBuffer.ReleaseAndGetAddressOf()));
+
 	DX::ThrowIfFailed(_result);//エラーチェック
 
 	//上記で作った領域にデータ書き込み
+#pragma region ID3D12Resource::Map()メモ
+	/*
+		HRESULT Map(
+			UINT Subresource,	// ミップマップなどでないため 0 でよい
+			const D3D12_RANGE *pReadRange, // 範囲指定。全範囲なので nullptr でよい
+			void **ppData	// 受け取るためのポインター変数のアドレス
+		);
+		このメソッドはバッファーの(仮想)アドレスを取得するための関数。
+		CPU側でこのアドレス上のメモリに対して変更を行えば、それがGPU側に伝わるイメージをするといい
+	*/
+#pragma endregion
+	//_map_addrに事前に作っておいた頂点データを書き込んでやることで
+	//バッファー上の頂点情報を更新しています
 	XMFLOAT3* _map_addr = nullptr;
 	m_vertexBuffer->Map(0, nullptr, (void**)&_map_addr);//vertexBufferからアドレスもらい
 	CopyMemory(_map_addr, s_screenTriangleVertices, sizeof(s_screenTriangleVertices));//書き込み
 	m_vertexBuffer->Unmap(0, nullptr);//閉じる
+
+#pragma region VertexBufferView メモ
+	/*
+	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();// バッファーの仮想アドレス
+	m_vertexBufferView.SizeInBytes = sizeof(s_screenTriangleVertices);// 頂点データの全バイト数
+	m_vertexBufferView.StrideInBytes = sizeof(s_screenTriangleVertices[0]);// 1頂点当たりのバイト数
+	*/
+#pragma endregion
 
 	m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
 	m_vertexBufferView.SizeInBytes = sizeof(s_screenTriangleVertices);
@@ -152,11 +210,30 @@ void TitleScene::LoadAssets()
 	//シェーダー
 	ComPtr<ID3DBlob> _error_blob;//エラーが出るとここに何かが入る
 	//シェーダーファイルをバイトコードに変換して最初に実行する関数をしていする
+#pragma region D3DCompileFromFile メモ
+	/*
+	D3DCompileFromFile(
+	LPCWSTR pFileName, // ファイル名(ワイド文字) wchar_t <-これ
+	const D3D_SHADER_MACRO *pDefines, // シェーダーマクロオブジェクト(nullptrでよい)
+	ID3DInclude *pInclude, // インクルードオブジェクト
+	LPCSTR pEntrypoint, // エントリポイント(呼び出すシェーダー名)
+	LPCSTR pTarget, // どのシェーダーを割り当てるか(vs,ps 等)
+	UINT Flags1, // シェーダーコンパイルオプション
+	UINT Flags2, // エフェクトコンパイルオプション(0 を推奨)
+	ID3DBlob **ppCude, // 受け取るためのポインターのアドレス
+	ID3DBlob **ppErrorMsgs // エラー用ポインターのアドレス
+	);
+	*/
+#pragma endregion
+
 	_result = D3DCompileFromFile(
 		L"HLSL/sample.fx",
-		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"VSMain", "vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0,
+		nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		"VSMain",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
 		m_vsBlob.ReleaseAndGetAddressOf(),
 		_error_blob.ReleaseAndGetAddressOf()
 	);
@@ -264,6 +341,9 @@ void TitleScene::LoadAssets()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC _gpipeline = { 0 };
 
 	_gpipeline.pRootSignature = m_rootSignature.Get();
+	//シェーダーのセット
+	//D3D12_SHADER_BYTECODE構造体からシェーダーのバイトコードのポインターとサイズ情報を持ってくる
+	//
 	_gpipeline.VS.pShaderBytecode = m_vsBlob->GetBufferPointer();
 	_gpipeline.VS.BytecodeLength = m_vsBlob->GetBufferSize();
 	_gpipeline.PS.pShaderBytecode = m_psBlob->GetBufferPointer();
@@ -309,10 +389,13 @@ void TitleScene::LoadAssets()
 	D3D12_INPUT_ELEMENT_DESC _inputLayout[] =
 	{
 		{
-			"POSITION",
-			0, DXGI_FORMAT_R32G32B32_FLOAT,
-			0, D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+			"POSITION", // セマンティクス名
+			0, // 同じセマンティクス名の時に使うインデックス(0でよい)
+			DXGI_FORMAT_R32G32B32_FLOAT, // フォーマット(要素数とビット数で型を表す)
+			0, // 入力スロットインデックス(0でよい)
+			D3D12_APPEND_ALIGNED_ELEMENT, // データのオフセット位置(D3D12_APPEND_ALIGNED_ELEMENTでよい)
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, // D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATAでよい
+			0 // 一度に描画するインスタンスの数(0でよい)
 		},
 		{
 			"TEXCOORD",
@@ -321,6 +404,7 @@ void TitleScene::LoadAssets()
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		}
 	};
+
 	_gpipeline.InputLayout = { _inputLayout, _countof(_inputLayout) };
 
 	_gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
@@ -333,8 +417,12 @@ void TitleScene::LoadAssets()
 
 
 	_result = DXTK->Device->CreateGraphicsPipelineState(
-		&_gpipeline,
+		&_gpipeline, // グラフィックスパイプラインステートの各パラメータ設定
 		IID_PPV_ARGS(m_pipelineState.ReleaseAndGetAddressOf())
+		//IID_PPV_ARGS <-これマクロです
+		//インターフェイス ポインターを取得するために使用され
+		// 使用されるインターフェイス ポインターの型に基づいて
+		// 要求されたインターフェイスの IID 値が自動的に指定されます
 	);
 	DX::ThrowIfFailed(_result);
 

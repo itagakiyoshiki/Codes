@@ -246,7 +246,7 @@ void Player::DebugSpritePositionSet()
 
 void Player::ItemHit()
 {
-	m_speed *= 1.3f;
+	m_speed *= s_upSpeed;
 	m_havingItemCount++;
 	m_bulletUI.ItemHit();
 }
@@ -262,6 +262,7 @@ void Player::Shot()
 		{
 			FireShot();
 		}
+
 		//•X
 		if (InputSystem.Keyboard.wasPressedThisFrame.X
 			&& m_havingItemCount >= s_iceBulletAuthorizationItemCount)
@@ -271,8 +272,7 @@ void Player::Shot()
 
 		//•—
 		if (InputSystem.Keyboard.wasPressedThisFrame.C
-			&& m_havingItemCount >= s_windBulletAuthorizationItemCount
-			|| InputSystem.Keyboard.wasPressedThisFrame.C)
+			&& m_havingItemCount >= s_windBulletAuthorizationItemCount)
 		{
 			WindShot();
 		}
@@ -291,8 +291,7 @@ void Player::Shot()
 		}
 
 		if (InputSystem.Keyboard.wasPressedThisFrame.NumPad3
-			&& m_havingItemCount >= s_windBulletAuthorizationItemCount
-			|| InputSystem.Keyboard.wasPressedThisFrame.NumPad3)
+			&& m_havingItemCount >= s_windBulletAuthorizationItemCount)
 		{
 			WindShot();
 		}
