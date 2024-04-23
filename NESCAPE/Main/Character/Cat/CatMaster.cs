@@ -31,17 +31,14 @@ public class CatMaster : MonoBehaviour
 
     Vector3 firestPositon;
 
+    const float searchEndDistance = 1.0f;
+    const float searchEndDotAngleLower = 0.1f;
+    const float searchEndDotAngleUper = 0.95f;
+
     const float returnFirestDistance = 1.0f;
 
     float searchTime;
 
-    float visionLostRange;
-
-    float noticeDecoyWaitTime;
-    float noticeDecoyWaitCurrentTime;
-
-    const float huntTime = 5.0f;
-    float huntCurrentTime;
 
     const float punchCoolTime = 1.0f;
     float punchCurrentTime = 0.0f;
@@ -103,7 +100,6 @@ public class CatMaster : MonoBehaviour
     void Start()
     {
         catThinkingType = catSetting.CatThinkingType;
-        visionLostRange = catSetting.MouseLossDistance;
         veryNearEffectRange = catSetting.VeryNearEffectRange;
         nearEffectRange = catSetting.NearEffectRange;
         searchTime = catSetting.SearchTime;
@@ -120,9 +116,7 @@ public class CatMaster : MonoBehaviour
         gameStart = true;
 
         searchCurrentTime = 0.0f;
-        huntCurrentTime = 0.0f;
         punchCurrentTime = 0.0f;
-        noticeDecoyWaitCurrentTime = 0.0f;
 
         if (catThinkingType == Thinking.WanderingAbout)
         {
@@ -378,6 +372,8 @@ public class CatMaster : MonoBehaviour
 
         }
 
+
+
         //警戒中の行動
         if (cautionNow)
         {
@@ -398,26 +394,11 @@ public class CatMaster : MonoBehaviour
 
         ScreenEffectSet();
 
-        //デコイを見つけていた場合待機する
-        //if (noticeIsDecoy)
-        //{
-        //    noticeDecoyWaitCurrentTime += Time.deltaTime;
-        //    if (noticeDecoyWaitCurrentTime >= noticeDecoyWaitTime)
-        //    {
-        //        noticeIsDecoy = false;
-        //        discoverCompass.AvoidBugIsDecoyPos();
-        //        noticeDecoyWaitCurrentTime = 0.0f;
-        //        catMove.GoNav();
-        //        catAnimation.DecoyNoticeOFF();
-        //    }
-        //    catMove.StopNav();
-
-        //    return;
-        //}
-
         //帰還行動中の処理
         if (returnMoveOn)
         {
+
+
             //見つけていないときの視界の大きさに再設定
             nowVisionSetting.SetNomalVision(); ;
 
@@ -450,14 +431,21 @@ public class CatMaster : MonoBehaviour
 
         float _dot = Vector3.Dot(_catForPositon, _catForward);//内積(1 ～ -1)
         float _dis = Vector3.Distance(transform.position, searchPlaningPosition);
-        if (_dis <= 1.0f && _dot >= 0.95f
-                || _dis <= 1.0f && _dot <= 0.1f)
+        if (_dis <= searchEndDistance && _dot >= searchEndDotAngleUper
+                || _dis <= searchEndDistance && _dot <= searchEndDotAngleLower)
         {
             //追跡歩きを止めさせる
             catAnimation.OnEndSearch();
             catAnimation.CautionBreaking();
             returnMoveOn = true;
             cautionNow = false;
+
+            //一人も Search / Hunt 猫がいなければNonChaseBGMを鳴らす
+            if (!CatStateManeger.instance.AnyCatHunt())
+            {
+                MainManager.instance.PlayNonChaseBGM();
+            }
+
             return;
         }
 
@@ -476,17 +464,6 @@ public class CatMaster : MonoBehaviour
 
     void Hunt()
     {
-        //パンチが当たってネズミを倒したらNomalへ移行
-        //当たり判定をCatPunchにもたせる
-        //if (catPunch.PunchHit || catNearAttack.AttackHit)
-        //{
-        //    catAnimation.EndHunting();
-        //    catAnimation.AnimationStateSetSearch();
-        //    returnMoveOn = true;
-        //    StateSet(State.Search);
-        //    return;
-        //}
-
         //huntの状態でMousLossになり最後に見た位置に着いたらLookをして帰還する
         if (visionSensor.MouseLoss)
         {
@@ -500,23 +477,17 @@ public class CatMaster : MonoBehaviour
             {
                 Frameanimation.instance.ResetEffect();
             }
+
+            //一人も Search / Hunt 猫がいなければNonChaseBGMを鳴らす
+            if (!CatStateManeger.instance.AnyCatHunt())
+            {
+                MainManager.instance.PlayNonChaseBGM();
+            }
             StateSet(State.Search);
             return;
 
-            //float _distance =
-            // (transform.position -
-            //    discoverCompass.DiscoverMousePos).sqrMagnitude;
 
-            ////最後に見た地点に着き視界にネズミがいないとSearchへ移行
-            ////念のため、安全装置としてTimeを加えておく視界も狭めておく
-            //huntCurrentTime += Time.deltaTime;
-
-            //if (_distance <= visionLostRange || huntCurrentTime >= huntTime)
-            //{
-            //}
         }
-
-
 
         //攻撃範囲内に入ったときかつクールタイムが終わったら攻撃
         if (punchCurrentTime >= punchCoolTime)
@@ -535,31 +506,6 @@ public class CatMaster : MonoBehaviour
                 catAnimation.OnPunch();
             }
 
-            //追いかけたのがデコイだと分かった場合
-            //パンチを行う
-            //if (visionSensor.NoticeIsDecoy)
-            //{
-            //    punchCurrentTime = 0.0f;
-            //    catAnimation.OnPunch();
-            //    //catAnimation.DecoyNoticeON();
-            //    //catAnimation.EndHunting();
-            //    //catAnimation.AnimationStateSetSearch();
-            //    //returnMoveOn = true;
-            //    //noticeIsDecoy = true;
-            //    //if (effectOn)
-            //    //{
-            //    //    Frameanimation.instance.ResetEffect();
-            //    //}
-            //    //discoverCompass.ResetDecoyDiscover();
-            //    //StateSet(State.Search);
-            //    //return;
-            //}
-
-            //if (visionSensor.InNearVisionOnDecoy)
-            //{
-            //    punchCurrentTime = 0.0f;
-            //    catAnimation.OnNearAttack();
-            //}
         }
         else
         {
@@ -589,6 +535,11 @@ public class CatMaster : MonoBehaviour
         switch (setState)
         {
             case State.Nomal:
+                if (!CatStateManeger.instance.AnyCatSearch()
+                    && !CatStateManeger.instance.AnyCatHunt())//一人も Search / Hunt 猫がいなければNonChaseBGMを鳴らす
+                {
+                    MainManager.instance.PlayNonChaseBGM();
+                }
                 catAnimation.CautionBreaking();
                 catAnimation.AnimationStateSetNomal();
                 catMove.ResetFlags();
@@ -632,7 +583,6 @@ public class CatMaster : MonoBehaviour
                 SEManager.instance.PlayCatSurprisedMarkSE(audioSource);
                 returnMoveOn = false;
                 cautionNow = false;
-                huntCurrentTime = 0.0f;
                 nowVisionSetting.VisionON();
                 catAnimation.AnimationStateSetHunt();
                 catAnimation.StartHunting();

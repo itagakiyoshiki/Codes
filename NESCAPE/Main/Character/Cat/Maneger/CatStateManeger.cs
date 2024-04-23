@@ -46,6 +46,23 @@ public class CatStateManeger : MonoBehaviour
     }
 
     /// <summary>
+    /// ˆêl‚Å‚àSearch‚¾‚Á‚½ê‡true‚ğ•Ô‚·
+    /// </summary>
+    /// <returns></returns>
+    public bool AnyCatSearch()
+    {
+        foreach (CatMaster _cat in catMasters)
+        {
+            if (_cat.State_ == CatMaster.State.Search)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// ˆêl‚Å‚àHunt‚¾‚Á‚½ê‡true‚ğ•Ô‚·
     /// </summary>
     /// <returns></returns>
