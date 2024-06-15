@@ -59,7 +59,7 @@ private:
 
 	const enum class MidActionState
 	{
-		Stay, Left, Right,
+		Left, Right, Count, None
 	};
 
 	//ˆÚ“®‘¬“x

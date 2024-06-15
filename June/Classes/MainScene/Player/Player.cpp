@@ -149,7 +149,7 @@ void Player::Render(DirectXTK::Camera& camera)
 /// </summary>
 void Player::OnCollisionEnter()
 {
-	m_hitSe->Play();
+	m_currentState->OnCollisionEnter();
 }
 
 /// <summary>

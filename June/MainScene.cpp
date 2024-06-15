@@ -61,11 +61,11 @@ void MainScene::LoadAssets()
 // Initialize a variable and audio resources.
 void MainScene::Initialize()
 {
-	m_stage.Initialize(Vector3(0, 0, 0));
+	m_stage.Initialize(s_stagePosition);
 
 	m_player.Initialize();
 
-	m_enemy.Initialize(Vector3(0, 0, 800));
+	m_enemy.Initialize(s_enemyStartPosition);
 
 	m_counterManager.Initialize();
 }

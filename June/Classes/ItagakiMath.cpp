@@ -11,7 +11,7 @@ using namespace SimpleMath;
 /// <param name="minRnage"></param>
 /// <param name="maxRange"></param>
 /// <returns></returns>
-const float ItagakiMath::Random(const float minRnage, const float maxRange)
+const int ItagakiMath::Random(const int minRnage, const int maxRange)
 {
 	std::random_device _randomDevice;
 	std::mt19937 _mersenneTwisterGenerator(_randomDevice());

@@ -44,6 +44,12 @@ public:
 
 private:
 
+	static constexpr SimpleMath::Vector3 s_stagePosition =
+		SimpleMath::Vector3(0.0f, 0.0f, 0.0f);
+
+	static constexpr SimpleMath::Vector3 s_enemyStartPosition =
+		SimpleMath::Vector3(0.0f, 0.0f, 800.0f);
+
 	std::unique_ptr<DirectX::DescriptorHeap> m_resourceDescriptors;
 
 	DirectXTK::SpriteBatch m_spriteBatch;

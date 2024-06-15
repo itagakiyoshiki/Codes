@@ -14,7 +14,7 @@ void EnemyNomalState::Initialize(Enemy& enemy)
 	m_stateChangeOn = true;
 
 	m_currentDistanceState = DistanceState::Out;
-	m_currentMidActionState = MidActionState::Stay;
+	m_currentMidActionState = MidActionState::None;
 
 	m_myPosition = enemy.GetPosition();
 }
@@ -124,7 +124,7 @@ void EnemyNomalState::MidUpdate(Enemy& enemy)
 {
 	if (m_stateChangeOn)
 	{
-		int _random = ItagakiMath::Random(0, 1);
+		size_t _random = ItagakiMath::Random(0, static_cast<int>(MidActionState::Count));
 		switch (_random)
 		{
 		case 0:

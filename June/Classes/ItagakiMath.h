@@ -34,7 +34,7 @@ public:
 			(v1.x * v2.y) - (v1.y * v2.x));
 	}
 
-	static const float Random(const float minRnage, const float maxRange);
+	static const int Random(const int minRnage, const int maxRange);
 
 	static const float Dot(const SimpleMath::Vector3 v1, const SimpleMath::Vector3 v2);
 
