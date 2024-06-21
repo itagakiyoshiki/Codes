@@ -24,7 +24,7 @@ public:
 
 private:
 
-	static constexpr float s_blockTime = 100.5f;
+	static constexpr float s_blockTime = 4.5f;
 
 	static constexpr float s_blockAngleFront = 0.0f;
 	static constexpr float s_blockAngleBack = 1.0f;

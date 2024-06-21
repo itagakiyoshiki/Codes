@@ -10,8 +10,13 @@ public:
 
 	void ColliderResolve(Player&, Enemy&);
 
+
+
 private:
 
+	void PlayerToEnemyResolve(Player& player, Enemy& enemy);
+
+	void EnemyToPlayerResolve(Enemy& enemy, Player& player);
 
 };
 

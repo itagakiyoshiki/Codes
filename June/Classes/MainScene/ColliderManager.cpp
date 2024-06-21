@@ -7,6 +7,45 @@ using namespace SimpleMath;
 void ColliderManager::ColliderResolve(Player& player, Enemy& enemy)
 {
 	//ƒvƒŒƒCƒ„[UŒ‚‚Æ“G‚Ì“–‚½‚è”»’è
+	PlayerToEnemyResolve(player, enemy);
+
+	//“GUŒ‚‚ÆƒvƒŒƒCƒ„[‚Ì“–‚½‚è”»’è
+	EnemyToPlayerResolve(enemy, player);
+
+
+}
+
+/// <summary>
+/// “GUŒ‚‚ÆƒvƒŒƒCƒ„[‚Ì“–‚½‚è”»’è
+/// </summary>
+/// <param name="enemy"></param>
+/// <param name="player"></param>
+void ColliderManager::EnemyToPlayerResolve(Enemy& enemy, Player& player)
+{
+	if (enemy.GetAttackState().GetAttackNow())
+	{
+		//‘„”»’è
+		if (enemy.GetSpear().GetCollider().Intersects(player.GetCollider()))
+		{
+			player.OnCollisionEnter();
+			enemy.GetSpear().OnCollisionEnter();
+		}
+		//•€”»’è
+		if (enemy.GetAxe().GetCollider().Intersects(player.GetCollider()))
+		{
+			player.OnCollisionEnter();
+		}
+	}
+}
+
+/// <summary>
+/// ƒvƒŒƒCƒ„[UŒ‚‚Æ“G‚Ì“–‚½‚è”»’è
+/// </summary>
+/// <param name="player"></param>
+/// <param name="enemy"></param>
+void ColliderManager::PlayerToEnemyResolve(Player& player, Enemy& enemy)
+{
+	//ƒvƒŒƒCƒ„[UŒ‚‚Æ“G‚Ì“–‚½‚è”»’è
 	//UŒ‚’†‚È‚ç‚Îˆ—‚ğs‚¤
 	//“G‚ªUŒ‚‚ğó‚¯•t‚¯‚È‚¢ó‘Ô‚È‚çˆ—‚ğs‚í‚È‚¢
 	if (player.GetAttackState().GetAttackNow() && enemy.GetHitOk())
@@ -37,23 +76,5 @@ void ColliderManager::ColliderResolve(Player& player, Enemy& enemy)
 			enemy.OnCollisionEnter(enemy, _collider);
 		}
 	}
-
-	//“GUŒ‚‚ÆƒvƒŒƒCƒ„[‚Ì“–‚½‚è”»’è
-	if (enemy.GetAttackState().GetAttackNow())
-	{
-		//‘„”»’è
-		if (enemy.GetSpear().GetCollider().Intersects(player.GetCollider()))
-		{
-			player.OnCollisionEnter();
-			enemy.GetSpear().OnCollisionEnter();
-		}
-		//•€”»’è
-		if (enemy.GetAxe().GetCollider().Intersects(player.GetCollider()))
-		{
-			player.OnCollisionEnter();
-		}
-	}
-
-
 }
 

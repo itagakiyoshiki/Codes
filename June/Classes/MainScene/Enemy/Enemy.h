@@ -85,8 +85,7 @@ public:
 
 	DirectX::XMMATRIX& GetRightHandMatrix()
 	{
-		return m_draw_bones[m_handBoneIndex + 0];
-		//return m_draw_bones[2];
+		return m_draw_bones[m_handBoneIndex];
 	}
 
 	SimpleMath::Vector3& GetPosition()

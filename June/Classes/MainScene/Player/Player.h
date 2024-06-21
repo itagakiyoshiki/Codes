@@ -229,8 +229,8 @@ private:
 	//デバック---------------------------------------------------
 
 	 //デバック時 true にする変数
-	static constexpr bool s_DebugOn = true;
-	// 
+	static constexpr bool s_DebugOn = false;
+
 	//デバッグ用モデル関数
 	void CreateDebugModel();
 

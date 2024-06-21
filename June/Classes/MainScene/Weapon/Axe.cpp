@@ -116,7 +116,7 @@ void Axe::ModelMatrixUpdate()
 /// </summary>
 /// <param name="parentMat"></param>
 /// <param name="parentworldMat"></param>
-void Axe::EnemyHandFollowUpdate(SimpleMath::Matrix parentMat, SimpleMath::Matrix parentworldMat)
+void Axe::EnemyHandFollowUpdate(SimpleMath::Matrix handMat, SimpleMath::Matrix parentworldMat)
 {
 	SimpleMath::Matrix _parentWorld = parentworldMat;
 	_parentWorld.m[3][0] = 0.0f;
@@ -128,7 +128,7 @@ void Axe::EnemyHandFollowUpdate(SimpleMath::Matrix parentMat, SimpleMath::Matrix
 			s_defaultRotation.x, s_defaultRotation.y, s_defaultRotation.z)
 		* SimpleMath::Matrix::CreateTranslation(
 			s_defaultPosition.x, s_defaultPosition.y, s_defaultPosition.z)
-		* parentMat
+		* handMat
 		* _parentWorld;
 
 	m_modelWorld.m[3][0] += parentworldMat.m[3][0];

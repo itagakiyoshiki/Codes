@@ -33,7 +33,7 @@ public:
 		ModelMatrixUpdate();
 	}
 
-	void EnemyHandFollowUpdate(SimpleMath::Matrix parentMat, SimpleMath::Matrix parentworldMat);
+	void EnemyHandFollowUpdate(SimpleMath::Matrix handMat, SimpleMath::Matrix parentworldMat);
 
 	void SetAxeTheta(const float theta)
 	{
@@ -110,7 +110,7 @@ private:
 
 	//デバッグ用モデル
 	//デバック時 true にする変数
-	static constexpr bool s_DebugOn = true;
+	static constexpr bool s_DebugOn = false;
 	void RenderDebugModel(DirectXTK::Camera&);
 	void CreateDebugModel(RenderTargetState);
 	std::unique_ptr<GeometricPrimitive> m_debugModel;

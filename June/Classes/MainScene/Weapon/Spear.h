@@ -1,12 +1,12 @@
 #pragma once
 #include "Scenes/Scene.h"
-#include <Effekseer.h>
-#include <EffekseerRendererDX12.h>
 #include "Classes/ItagakiMath.h"
-
-#pragma comment(lib,"Effekseer.lib")
-#pragma comment(lib,"EffekseerRendererDX12.lib")
-#pragma comment(lib,"LLGI.lib")
+//#include <Effekseer.h>
+//#include <EffekseerRendererDX12.h>
+//
+//#pragma comment(lib,"Effekseer.lib")
+//#pragma comment(lib,"EffekseerRendererDX12.lib")
+//#pragma comment(lib,"LLGI.lib")
 
 class Spear
 {
@@ -57,9 +57,9 @@ public:
 
 private:
 
-	void EffectLoad();
+	//void EffectLoad();
 
-	void EffectUpdate(DirectXTK::Camera& camera);
+	//void EffectUpdate(DirectXTK::Camera& camera);
 
 	void ColliderUpdate();
 
@@ -102,29 +102,29 @@ private:
 	std::unique_ptr<DirectX::EffectTextureFactory> m_modelResources;
 	std::unique_ptr<EffectFactory> m_effectFactory;
 
-	//Effect
-	static constexpr float s_effectScale = 20.0f;
-	//エフェクトレンダラー
-	EffekseerRenderer::RendererRef m_efkRenderer = nullptr;
-	//エフェクトマネージャー
-	Effekseer::ManagerRef m_efkManager = nullptr;
-	//Dx12やBulkan,metalなど　
-	// コマンドリストを使うライブラリに対応するためのもの
-	//メモリプール
-	Effekseer::RefPtr<EffekseerRenderer::SingleFrameMemoryPool> m_efkMemoryPool = nullptr;
-	//コマンドリスト
-	Effekseer::RefPtr<EffekseerRenderer::CommandList> m_efkCmdList = nullptr;
-	//エフェクト再生に必要な物
-	//エフェクト本体(エフェクトファイルに対応)
-	Effekseer::EffectRef m_effect = nullptr;
-	//エフェクトハンドル(再生中のエフェクトに対応)
-	Effekseer::Handle m_efkHandle;
+	////Effect
+	//static constexpr float s_effectScale = 20.0f;
+	////エフェクトレンダラー
+	//EffekseerRenderer::RendererRef m_efkRenderer = nullptr;
+	////エフェクトマネージャー
+	//Effekseer::ManagerRef m_efkManager = nullptr;
+	////Dx12やBulkan,metalなど　
+	//// コマンドリストを使うライブラリに対応するためのもの
+	////メモリプール
+	//Effekseer::RefPtr<EffekseerRenderer::SingleFrameMemoryPool> m_efkMemoryPool = nullptr;
+	////コマンドリスト
+	//Effekseer::RefPtr<EffekseerRenderer::CommandList> m_efkCmdList = nullptr;
+	////エフェクト再生に必要な物
+	////エフェクト本体(エフェクトファイルに対応)
+	//Effekseer::EffectRef m_effect = nullptr;
+	////エフェクトハンドル(再生中のエフェクトに対応)
+	//Effekseer::Handle m_efkHandle;
 
 	bool m_playerUse;
 
 	//デバッグ用モデル
 	//デバック時 true にする変数
-	static constexpr bool s_DebugOn = true;
+	static constexpr bool s_DebugOn = false;
 	void RenderDebugModel(DirectXTK::Camera&);
 	void CreateDebugModel(RenderTargetState);
 	std::unique_ptr<GeometricPrimitive> m_debugModel;

@@ -47,7 +47,7 @@ void Spear::LoadAssets(ResourceUploadBatch& resourceUploadBatch, const bool play
 
 	m_modelNomal = m_model->CreateEffects(*m_effectFactory.get(), pd, pd);
 
-	EffectLoad();
+	//EffectLoad();
 
 	CreateDebugModel(rtState);
 }
@@ -77,7 +77,7 @@ void Spear::Render(DirectXTK::Camera& camera)
 
 	ModelMatrixUpdate();
 
-	EffectUpdate(camera);
+	//EffectUpdate(camera);
 
 
 	ID3D12DescriptorHeap* heaps[]{ m_modelResources->Heap(),m_commonStates->Heap() };
@@ -119,96 +119,96 @@ void Spear::SetTargetPosition(const SimpleMath::Vector3 position)
 	ColliderUpdate();
 }
 
-/// <summary>
-/// エフェクトを読み込み初期設定も行う
-/// </summary>
-void Spear::EffectLoad()
-{
-	//Effect
-	DXGI_FORMAT _renderTargetFormats = DXTK->BackBufferFormat;
-	m_efkRenderer = EffekseerRendererDX12::Create(
-		DXTK->Device,
-		DXTK->CommandQueue,
-		2,
-		&_renderTargetFormats,
-		1,
-		DXTK->DepthBufferFormat,
-		false,
-		10000
-	);
-
-	m_efkManager = Effekseer::Manager::Create(10000);//最大インスタンス数
-	//座標系を左手系にする
-	m_efkManager->SetCoordinateSystem(Effekseer::CoordinateSystem::LH);
-	//描画用インスタンスから描画機能を設定
-	m_efkManager->SetSpriteRenderer(m_efkRenderer->CreateSpriteRenderer());
-	m_efkManager->SetRibbonRenderer(m_efkRenderer->CreateRibbonRenderer());
-	m_efkManager->SetRingRenderer(m_efkRenderer->CreateRingRenderer());
-	m_efkManager->SetTrackRenderer(m_efkRenderer->CreateTrackRenderer());
-	m_efkManager->SetModelRenderer(m_efkRenderer->CreateModelRenderer());
-
-	//描画用インスタンスからテクスチャの読み込み機能を設定
-	//独自拡張も可能
-	m_efkManager->SetTextureLoader(m_efkRenderer->CreateTextureLoader());
-	m_efkManager->SetModelLoader(m_efkRenderer->CreateModelLoader());
-
-	//DirectX12特有の処理
-	m_efkMemoryPool =
-		EffekseerRenderer::CreateSingleFrameMemoryPool(m_efkRenderer->GetGraphicsDevice());
-
-	m_efkCmdList = EffekseerRenderer::CreateCommandList(
-		m_efkRenderer->GetGraphicsDevice(), m_efkMemoryPool);
-
-	m_efkRenderer->SetCommandList(m_efkCmdList);
-
-	m_effect = Effekseer::Effect::Create(
-		m_efkManager,
-		(const EFK_CHAR*)L"Effect/JuneSpearEffect.efk",
-		1.0f,
-		(const EFK_CHAR*)L"Effect/");
-}
-
-/// <summary>
-/// エフェクトの描画を更新する
-/// </summary>
-/// <param name="camera"></param>
-void Spear::EffectUpdate(DirectXTK::Camera& camera)
-{
-	m_efkManager->Update();//マネージャーの時間更新
-	m_efkMemoryPool->NewFrame();//描画すべきレンダーターゲットを選択
-
-	EffekseerRendererDX12::BeginCommandList(m_efkCmdList, DXTK->CommandList);
-
-	m_efkRenderer->BeginRendering();//描画前処理
-	m_efkManager->Draw();//エフェクト描画
-	m_efkRenderer->EndRendering();//描画後処理
-
-	EffekseerRendererDX12::EndCommandList(m_efkCmdList);
-
-	Effekseer::Matrix44 _fkViewMat;
-	Effekseer::Matrix44 _fkProjMat;
-	auto _view = camera.ViewMatrix;
-	auto _proj = camera.ProjectionMatrix;
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			_fkViewMat.Values[i][j] = _view.r[i].m128_f32[j];
-			_fkProjMat.Values[i][j] = _proj.r[i].m128_f32[j];
-		}
-	}
-
-	m_efkRenderer->SetCameraMatrix(_fkViewMat);
-	m_efkRenderer->SetProjectionMatrix(_fkProjMat);
-}
+///// <summary>
+///// エフェクトを読み込み初期設定も行う
+///// </summary>
+//void Spear::EffectLoad()
+//{
+//	//Effect
+//	DXGI_FORMAT _renderTargetFormats = DXTK->BackBufferFormat;
+//	m_efkRenderer = EffekseerRendererDX12::Create(
+//		DXTK->Device,
+//		DXTK->CommandQueue,
+//		2,
+//		&_renderTargetFormats,
+//		1,
+//		DXTK->DepthBufferFormat,
+//		false,
+//		10000
+//	);
+//
+//	m_efkManager = Effekseer::Manager::Create(10000);//最大インスタンス数
+//	//座標系を左手系にする
+//	m_efkManager->SetCoordinateSystem(Effekseer::CoordinateSystem::LH);
+//	//描画用インスタンスから描画機能を設定
+//	m_efkManager->SetSpriteRenderer(m_efkRenderer->CreateSpriteRenderer());
+//	m_efkManager->SetRibbonRenderer(m_efkRenderer->CreateRibbonRenderer());
+//	m_efkManager->SetRingRenderer(m_efkRenderer->CreateRingRenderer());
+//	m_efkManager->SetTrackRenderer(m_efkRenderer->CreateTrackRenderer());
+//	m_efkManager->SetModelRenderer(m_efkRenderer->CreateModelRenderer());
+//
+//	//描画用インスタンスからテクスチャの読み込み機能を設定
+//	//独自拡張も可能
+//	m_efkManager->SetTextureLoader(m_efkRenderer->CreateTextureLoader());
+//	m_efkManager->SetModelLoader(m_efkRenderer->CreateModelLoader());
+//
+//	//DirectX12特有の処理
+//	m_efkMemoryPool =
+//		EffekseerRenderer::CreateSingleFrameMemoryPool(m_efkRenderer->GetGraphicsDevice());
+//
+//	m_efkCmdList = EffekseerRenderer::CreateCommandList(
+//		m_efkRenderer->GetGraphicsDevice(), m_efkMemoryPool);
+//
+//	m_efkRenderer->SetCommandList(m_efkCmdList);
+//
+//	m_effect = Effekseer::Effect::Create(
+//		m_efkManager,
+//		(const EFK_CHAR*)L"Effect/JuneSpearEffect.efk",
+//		1.0f,
+//		(const EFK_CHAR*)L"Effect/");
+//}
+//
+///// <summary>
+///// エフェクトの描画を更新する
+///// </summary>
+///// <param name="camera"></param>
+//void Spear::EffectUpdate(DirectXTK::Camera& camera)
+//{
+//	m_efkManager->Update();//マネージャーの時間更新
+//	m_efkMemoryPool->NewFrame();//描画すべきレンダーターゲットを選択
+//
+//	EffekseerRendererDX12::BeginCommandList(m_efkCmdList, DXTK->CommandList);
+//
+//	m_efkRenderer->BeginRendering();//描画前処理
+//	m_efkManager->Draw();//エフェクト描画
+//	m_efkRenderer->EndRendering();//描画後処理
+//
+//	EffekseerRendererDX12::EndCommandList(m_efkCmdList);
+//
+//	Effekseer::Matrix44 _fkViewMat;
+//	Effekseer::Matrix44 _fkProjMat;
+//	auto _view = camera.ViewMatrix;
+//	auto _proj = camera.ProjectionMatrix;
+//	for (int i = 0; i < 4; i++)
+//	{
+//		for (int j = 0; j < 4; j++)
+//		{
+//			_fkViewMat.Values[i][j] = _view.r[i].m128_f32[j];
+//			_fkProjMat.Values[i][j] = _proj.r[i].m128_f32[j];
+//		}
+//	}
+//
+//	m_efkRenderer->SetCameraMatrix(_fkViewMat);
+//	m_efkRenderer->SetProjectionMatrix(_fkProjMat);
+//}
 
 /// <summary>
 /// コライダーに当たった時に呼ばれる関数
-/// </summary>
+/// < / summary>
 void Spear::OnCollisionEnter()
 {
-	m_efkHandle = m_efkManager->Play(m_effect, m_position.x, m_position.y, m_position.z);
-	m_efkManager->SetScale(m_efkHandle, s_effectScale, s_effectScale, s_effectScale);
+	//m_efkHandle = m_efkManager->Play(m_effect, m_position.x, m_position.y, m_position.z);
+	//m_efkManager->SetScale(m_efkHandle, s_effectScale, s_effectScale, s_effectScale);
 }
 
 /// <summary>
